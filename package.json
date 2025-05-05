@@ -1,20 +1,20 @@
 {
-  "name": "omni-dashboard",
+  "name": "omni-consumer",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {},
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/PrabhaSDET-TestV/Omni-Dashboard.git"
+    "url": "git+https://github.com/ravishankr12/omni_consumer.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/PrabhaSDET-TestV/Omni-Dashboard/issues"
+    "url": "https://github.com/ravishankr12/omni_consumer/issues"
   },
-  "homepage": "https://github.com/PrabhaSDET-TestV/Omni-Dashboard#readme",
+  "homepage": "https://github.com/ravishankr12/omni_consumer#readme",
   "devDependencies": {
     "@playwright/test": "^1.52.0",
     "@types/node": "^22.15.3",
