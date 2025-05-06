@@ -24,7 +24,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
 
     const res = await axios.post(createUrl, payload, { headers: HEADERS });
     buildId = res.data.build.build_id;
-    console.log('✅ Build started:', buildId);
+    console.log('Build started:', buildId);
   });
 
   test.afterEach(async ({}, testInfo) => {
@@ -35,7 +35,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
       test_cases: [
         {
           name: testInfo.title,
-          module: testInfo.parent?.title || 'General',
+          module: 'General',
           status: testStatus,
           duration: testInfo.duration || 0,
           steps: [],
@@ -55,7 +55,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
       headers: HEADERS,
     });
 
-    console.log(`📤 Sent result for "${testInfo.title}"`, resultRes.status);
+    console.log(`Sent result for "${testInfo.title}"`, resultRes.status);
   });
 
   test.afterAll(async () => {
@@ -79,6 +79,15 @@ test.describe('Swag Labs - Dashboard Integration', () => {
     await page.goto('https://www.saucedemo.com/v1');
     await page.fill('#user-name', 'standard_user');
     await page.fill('#password', 'secret_sauce');
+    await page.click('#login-button');
+    await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+  });
+
+
+  test('Swag Labs failed test cases', async ({ page }) => {
+    await page.goto('https://www.saucedemo.com/v1');
+    await page.fill('#user-name', 'standard_user');
+    await page.fill('#password', '');
     await page.click('#login-button');
     await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
   });
