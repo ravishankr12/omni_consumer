@@ -7,6 +7,8 @@ dotenv.config();
 export default defineConfig({
   testDir: './src/tests/',
   fullyParallel: false,
+  retries: 0,
+  workers: 1,
   // forbidOnly: !!process.env.CI,
   // retries: process.env.CI ? 2 : 0,
   // workers: process.env.CI ? 1 : undefined,

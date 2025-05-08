@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { TestCaseResponse } from './api-clients/types/test-case-service';
+import { StdoutLog, Step, TestCasePayload } from './api-clients/types/test-case-service';
 
 const BASE_URL = process.env.BASE_URL!;
 const PROJECT_ID = process.env.PROJECT_ID!;
@@ -12,37 +12,13 @@ const headers = {
 };
 
 export const TestCaseService = {
-  // Fetch failed test cases within the last 'days'
-  async getFailedTestCases(days: number = 7): Promise<TestCaseResponse> {
-    const url = `${BASE_URL}/projects/${PROJECT_ID}/test-cases?days=${days}&status=failed`;
-    try {
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching failed test cases:', error);
-      throw error;
-    }
-  },
-
-  // Fetch test cases for a specific build
-  async getTestCasesForBuild(buildId: string): Promise<TestCaseResponse> {
-    const url = `${BASE_URL}/projects/${PROJECT_ID}/test-cases?build_id=${buildId}`;
-    try {
-      const response = await axios.get(url, { headers });
-      return response.data;
-    } catch (error) {
-      console.error('Error fetching test cases for build:', error);
-      throw error;
-    }
-  },
-
-  // Create a test case with a given payload
-  async createTestCase(buildId: string, testCasePayload: any): Promise<any> {
+  async createTestCase(buildId: string, testCasePayload: TestCasePayload): Promise<any> {
     const url = `${BASE_URL}/projects/${PROJECT_ID}/test-cases`;
     const payload = {
       build_id: buildId,
       test_cases: [testCasePayload],
     };
+
     try {
       const response = await axios.post(url, payload, { headers });
       return response.data;
@@ -52,8 +28,50 @@ export const TestCaseService = {
     }
   },
 
-  // Helper method to create test case payloads
-  createTestCasePayload(name: string, module: string, status: string, duration: number, steps: any[] = [], stdout: any[] = []): any {
+  createPassedTestCasePayload(
+    name: string,
+    module: string,
+    duration: number,
+    stdout: StdoutLog[]
+  ): TestCasePayload {
+    return {
+      name,
+      module,
+      status: 'passed',
+      duration,
+      stdout,
+      steps: [],
+    };
+  },
+
+  createFailedTestCasePayload(
+    name: string,
+    module: string,
+    duration: number,
+    stdout: StdoutLog[],
+    error_message: string,
+    error_stack_trace: string
+  ): TestCasePayload {
+    return {
+      name,
+      module,
+      status: 'failed',
+      duration,
+      stdout,
+      steps: [],
+      error_message,
+      error_stack_trace,
+    };
+  },
+
+  createTestCaseWithStepsPayload(
+    name: string,
+    module: string,
+    status: string,
+    duration: number,
+    steps: Step[],
+    stdout: StdoutLog[]
+  ): TestCasePayload {
     return {
       name,
       module,

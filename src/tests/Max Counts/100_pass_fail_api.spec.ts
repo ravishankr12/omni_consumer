@@ -1,5 +1,6 @@
 import { test, expect } from '@playwright/test';
 import axios from 'axios';
+import { BuildService } from '../../../src/lib/build-service';
 
 const BASE_URL = process.env.BASE_URL!;
 const PROJECT_ID = process.env.PROJECT_ID!;
@@ -14,23 +15,14 @@ const HEADERS = {
 
 test.describe('Bulk API Test - Dashboard Integration', () => {
   test('Start a new build', async () => {
-    const url = `${BASE_URL}/projects/${PROJECT_ID}/builds?days=7&environment=production`;
+    const build = await BuildService.startBuild();
+    createdBuildId = build.build.build_id;
 
-    const payload = {
-      duration: 0,
-      environment: 'production',
-      status: 'in_progress',
-    };
-
-    const res = await axios.post(url, payload, { headers: HEADERS });
-
-    expect(res.status).toBe(200);
-    createdBuildId = res.data.build.build_id;
-    console.log('🚀 Build started:', createdBuildId);
+    console.log('Build started:', createdBuildId);
   });
 
   test('Push 35 passed test cases', async () => {
-    for (let i = 1; i <= 300; i++) {
+    for (let i = 1; i <= 400; i++) {
       const payload = {
         build_id: createdBuildId,
         test_cases: [
@@ -59,7 +51,7 @@ test.describe('Bulk API Test - Dashboard Integration', () => {
   });
 
   test('Push 35 failed test cases', async () => {
-    for (let i = 1; i <= 300; i++) {
+    for (let i = 1; i <= 400; i++) {
       const payload = {
         build_id: createdBuildId,
         test_cases: [
@@ -90,7 +82,7 @@ test.describe('Bulk API Test - Dashboard Integration', () => {
   });
 
   test('Push 30 test cases with steps', async () => {
-    for (let i = 1; i <= 300; i++) {
+    for (let i = 1; i <= 376; i++) {
       const payload = {
         build_id: createdBuildId,
         test_cases: [
@@ -136,20 +128,8 @@ test.describe('Bulk API Test - Dashboard Integration', () => {
   });
 
   test('Complete the build', async () => {
-    await new Promise((resolve) => setTimeout(resolve, 5000)); // Optional buffer
+    const complete = await BuildService.completeBuild(createdBuildId, 'passed', 9999, 'production');
 
-    const url = `${BASE_URL}/projects/${PROJECT_ID}/builds?build_id=${createdBuildId}`;
-
-    const payload = {
-      progress_status: 'completed',
-      status: 'failed', // Or 'passed' based on your test ratio
-      duration: 9999,
-      environment: 'production',
-    };
-
-    const res = await axios.patch(url, payload, { headers: HEADERS });
-
-    expect(res.status).toBe(200);
-    console.log('🏁 Build completed successfully:', res.data);
+    console.log('Build completed successfully:', complete);
   });
 });

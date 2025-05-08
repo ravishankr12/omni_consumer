@@ -4,7 +4,7 @@ export interface Build {
   environment: string;
   status: string;
   duration: number;
-  [key: string]: any; // fallback for unknown props
+  [key: string]: any;
 }
 
 export interface GetBuildsResponse {
