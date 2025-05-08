@@ -31,23 +31,27 @@ export const TestCaseService = {
   createPassedTestCasePayload(
     name: string,
     module: string,
+    status: string,
     duration: number,
+    steps: Step[] = [],
     stdout: StdoutLog[]
   ): TestCasePayload {
     return {
       name,
       module,
-      status: 'passed',
+      status,
       duration,
+      steps,
       stdout,
-      steps: [],
     };
   },
 
   createFailedTestCasePayload(
     name: string,
     module: string,
+    status: string,
     duration: number,
+    steps: Step[] = [],
     stdout: StdoutLog[],
     error_message: string,
     error_stack_trace: string
@@ -55,10 +59,10 @@ export const TestCaseService = {
     return {
       name,
       module,
-      status: 'failed',
+      status,
       duration,
+      steps,
       stdout,
-      steps: [],
       error_message,
       error_stack_trace,
     };

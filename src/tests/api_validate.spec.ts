@@ -27,7 +27,9 @@ test('Create a passed test case', async () => {
   const payload = TestCaseService.createPassedTestCasePayload(
     'Login test',
     'Authentication',
+    'passed',
     120,
+    [],
     stdout
   );
 
@@ -47,7 +49,9 @@ test('Create a failed test case', async () => {
   const payload = TestCaseService.createFailedTestCasePayload(
     'Checkout test',
     'E-Commerce',
+    'failed',
     300,
+    [],
     stdout,
     'Expected total price to match',
     'Error: AssertionError\n    at Object.<anonymous> (/tests/checkout.spec.ts:42:13)'
