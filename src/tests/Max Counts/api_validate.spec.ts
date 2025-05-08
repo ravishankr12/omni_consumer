@@ -1,6 +1,6 @@
 import { test } from '@playwright/test';
-import { BuildService } from '../../src/lib/build-service';
-import { TestCaseService } from '../../src/lib/test-case-api';
+import { BuildService } from '../../lib/build-service';
+import { TestCaseService } from '../../lib/test-case-api';
 
 let buildID: string;
 
