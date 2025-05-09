@@ -5,21 +5,21 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 export default defineConfig({
-  testDir: './src/tests/',
+  testDir: './src/tests/smoke',
+  globalSetup: require.resolve('./global-setup'),
+  globalTeardown: require.resolve('./global-teardown'),
   fullyParallel: false,
   retries: 0,
   workers: 1,
-  // forbidOnly: !!process.env.CI,
-  // retries: process.env.CI ? 2 : 0,
-  // workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   timeout: 600000,
+
   use: {
-    // baseURL: process.env.BASE_URL,
     trace: 'retain-on-failure',
     ignoreHTTPSErrors: true,
     actionTimeout: 20000,
   },
+
   projects: [
     {
       name: 'chromium',

@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 import axios from 'axios';
-import { BuildService } from '../../../src/lib/build-service';
+import { BuildService } from '../../lib/build-service';
 
 const BASE_URL = process.env.BASE_URL!;
 const PROJECT_ID = process.env.PROJECT_ID!;
