@@ -30,7 +30,7 @@ export const TestCaseService = {
 
   createPassedTestCasePayload(
     name: string,
-    module: string,
+    module: any,
     status: string,
     duration: number,
     steps: Step[] = [],
@@ -48,7 +48,7 @@ export const TestCaseService = {
 
   createFailedTestCasePayload(
     name: string,
-    module: string,
+    module: any,
     status: string,
     duration: number,
     steps: Step[] = [],

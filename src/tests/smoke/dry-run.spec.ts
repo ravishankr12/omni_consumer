@@ -21,10 +21,12 @@ test.describe('Swag Labs - Dashboard Integration', () => {
         message: `${testInfo.title} ${testStatus}`,
       },
     ];
+    const tags: string[] = testInfo.tags || [];
+    const cleanedTags: string = tags.map((tag) => tag.replace(/^@/, '')).join(', ');
 
     const basePayload = {
       name: testInfo.title,
-      module: 'General', // You can make this dynamic too if needed
+      module: cleanedTags,
       status: testStatus,
       duration: testInfo.duration || 0,
       steps: [],
@@ -55,12 +57,12 @@ test.describe('Swag Labs - Dashboard Integration', () => {
     }
 
     const response = await TestCaseService.createTestCase(buildID, payload);
-    console.log(`Sent test case result for "${testInfo.title}":`, response.status);
+    console.log(`Sent test case result for "${testInfo.title}":`, response);
   });
 
   // ✅ Passing test
   for (let i = 1; i <= 3; i++) {
-    test(`Pass - Login [${i}]`, async ({ page }) => {
+    test(`Pass - Login [${i}]`, { tag: ['@smoke', '@authtication'] }, async ({ page }) => {
       await page.goto('https://www.saucedemo.com/v1');
       await page.fill('#user-name', 'standard_user');
       await page.fill('#password', 'secret_sauce');
@@ -71,7 +73,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
 
   // Run failing login test 10 times
   for (let i = 1; i <= 3; i++) {
-    test(`Fail - Login [${i}]`, async ({ page }) => {
+    test(`Fail - Login [${i}]`, { tag: ['@sanity', '@authtication'] }, async ({ page }) => {
       await page.goto('https://www.saucedemo.com/v1');
       await page.fill('#user-name', 'standard_user');
       await page.fill('#password', 'fail');
