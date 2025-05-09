@@ -1,7 +1,82 @@
-// src/tests/smoke.spec.ts
 import { test, expect } from '@playwright/test';
+import fs from 'fs/promises';
+import { TestCaseService } from '../../lib/test-case-api';
 
-test('Simple test to trigger build', async () => {
-  expect(true).toBe(true);
+let buildID: string;
+
+// Load buildId from file before tests
+test.beforeAll(async () => {
+  const data = await fs.readFile('build-meta.json', 'utf-8');
+  buildID = JSON.parse(data).buildId;
 });
 
+test.describe('Swag Labs - Dashboard Integration', () => {
+  test.afterEach(async ({}, testInfo) => {
+    const testStatus = testInfo.status === 'passed' ? 'passed' : 'failed';
+
+    const stdoutLogs = [
+      {
+        timestamp: new Date().toISOString(),
+        level: testStatus === 'passed' ? 'info' : 'error',
+        message: `${testInfo.title} ${testStatus}`,
+      },
+    ];
+
+    const basePayload = {
+      name: testInfo.title,
+      module: 'General', // You can make this dynamic too if needed
+      status: testStatus,
+      duration: testInfo.duration || 0,
+      steps: [],
+      stdout: stdoutLogs,
+    };
+
+    let payload;
+    if (testStatus === 'passed') {
+      payload = TestCaseService.createPassedTestCasePayload(
+        basePayload.name,
+        basePayload.module,
+        basePayload.status,
+        basePayload.duration,
+        basePayload.steps,
+        basePayload.stdout
+      );
+    } else {
+      payload = TestCaseService.createFailedTestCasePayload(
+        basePayload.name,
+        basePayload.module,
+        basePayload.status,
+        basePayload.duration,
+        basePayload.steps,
+        basePayload.stdout,
+        testInfo.error?.message || 'Unknown error',
+        testInfo.error?.stack || ''
+      );
+    }
+
+    const response = await TestCaseService.createTestCase(buildID, payload);
+    console.log(`Sent test case result for "${testInfo.title}":`, response.status);
+  });
+
+  // ✅ Passing test
+  for (let i = 1; i <= 3; i++) {
+    test(`Pass - Login [${i}]`, async ({ page }) => {
+      await page.goto('https://www.saucedemo.com/v1');
+      await page.fill('#user-name', 'standard_user');
+      await page.fill('#password', 'secret_sauce');
+      await page.click('#login-button');
+      await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+    });
+  }
+
+  // Run failing login test 10 times
+  for (let i = 1; i <= 3; i++) {
+    test(`Fail - Login [${i}]`, async ({ page }) => {
+      await page.goto('https://www.saucedemo.com/v1');
+      await page.fill('#user-name', 'standard_user');
+      await page.fill('#password', 'fail');
+      await page.click('#login-button');
+      await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html'); // will fail
+    });
+  }
+});
