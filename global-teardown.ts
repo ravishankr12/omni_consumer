@@ -8,7 +8,7 @@ async function globalTeardown() {
 
   // Call reusable BuildService method
   const complete = await BuildService.completeBuild(buildId, 'passed', 800, 'production');
-  console.log('🏁 Global Teardown: Build completed:', complete);
+  console.log('Global Teardown: Build completed:', complete);
 }
 
 export default globalTeardown;
