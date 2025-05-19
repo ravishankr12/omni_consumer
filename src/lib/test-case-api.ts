@@ -1,4 +1,6 @@
 import axios from 'axios';
+import fs from 'fs/promises';
+import path from 'path';
 import {
   StdoutLog,
   Step,
@@ -31,6 +33,34 @@ export const TestCaseService = {
       console.error('Error creating test case:', error);
       throw error;
     }
+  },
+
+  async uploadScreenshotsAndUpdateDashboard(testCaseResponse: any, snapshotFolderPath: string) {
+    for (const screenshot of testCaseResponse.screenshots) {
+      const imagePath = path.join(snapshotFolderPath, screenshot.name);
+      const fileData = await fs.readFile(imagePath);
+
+      await axios.put(screenshot.uploadUrl, fileData, {
+        headers: {
+          'Content-Type': 'image/png',
+        },
+        maxBodyLength: Infinity,
+      });
+    }
+
+    const screenshotsPayload = testCaseResponse.screenshots.map(
+      (screenshot: { name: string; s3Path: string; timestamp: string }) => ({
+        name: screenshot.name,
+        path: screenshot.s3Path,
+        timestamp: screenshot.timestamp,
+      })
+    );
+
+    await axios.patch(
+      `${BASE_URL}/projects/${PROJECT_ID}/test-cases/${testCaseResponse.id}/screenshots`,
+      { screenshots: screenshotsPayload },
+      { headers }
+    );
   },
 
   createPassedTestCasePayload(

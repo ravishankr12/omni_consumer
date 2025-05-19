@@ -2,7 +2,6 @@ import { test, expect } from '@playwright/test';
 import fs from 'fs/promises';
 import { TestCaseService } from '../../lib/test-case-api';
 import path from 'path';
-import axios from 'axios';
 
 let buildID: string;
 
@@ -73,44 +72,10 @@ test.describe('Swag Labs - Dashboard Integration', () => {
 
     const response = await TestCaseService.createTestCase(buildID, payload);
     console.log(`Sent test case result for "${testInfo.title}":`, response);
-    console.log(response[0].id);
-    console.log(response[0].screenshots);
-
+    
     // Folder where your screenshots are saved (relative to this spec file)
     const snapshotsFolder = path.resolve(__dirname, 'dry-run.spec.ts-snapshots');
-
-    for (const screenshot of response[0].screenshots) {
-      const screenshotName = screenshot.name;
-      const imagePath = path.join(snapshotsFolder, screenshotName);
-      const fileData = await fs.readFile(imagePath);
-
-      await axios.put(screenshot.uploadUrl, fileData, {
-        headers: {
-          'Content-Type': 'image/png',
-        },
-        maxBodyLength: Infinity,
-      });
-    }
-
-    // Push uploaded S3 screenshot paths to the dashboard
-    const screenshotsPayload = response[0].screenshots.map(
-      (screenshot: { name: string; path?: string; s3Path: string; timestamp: string }) => ({
-        name: screenshot.name,
-        path: screenshot.s3Path,
-        timestamp: screenshot.timestamp,
-      })
-    );
-
-    await axios.patch(
-      `https://omni-dashboard-inky.vercel.app/api/v1/projects/b3d59af9-c810-4f48-8e1e-edf25e5ad26f/test-cases/${response[0].id}/screenshots`,
-      { screenshots: screenshotsPayload },
-      {
-        headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': 'omni_live_ecc1acg7FV0JR4HsBftqyakKUJjwDbzvh1cm-_7aBMQ',
-        },
-      }
-    );
+    await TestCaseService.uploadScreenshotsAndUpdateDashboard(response[0], snapshotsFolder);
   });
 
   // Passing test
