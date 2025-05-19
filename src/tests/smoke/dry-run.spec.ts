@@ -125,7 +125,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
     });
   }
 
-  // Run failing login test 10 times
+  // Run failing login test n times
   for (let i = 1; i <= 1; i++) {
     test(`Fail - Login [${i}]`, { tag: ['@sanity', '@authtication'] }, async ({ page }) => {
       await page.goto('https://www.saucedemo.com/v1');
