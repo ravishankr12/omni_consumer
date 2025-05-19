@@ -20,6 +20,11 @@ export interface TestCasePayload {
   duration: number;
   steps?: Step[];
   stdout: StdoutLog[];
+  screenshots?: ScreenshotMeta[];
   error_message?: string;
   error_stack_trace?: string;
+}
+export interface ScreenshotMeta {
+  name: string;
+  timestamp: string;
 }

@@ -1,5 +1,10 @@
 import axios from 'axios';
-import { StdoutLog, Step, TestCasePayload } from './api-clients/types/test-case-service';
+import {
+  StdoutLog,
+  Step,
+  TestCasePayload,
+  ScreenshotMeta,
+} from './api-clients/types/test-case-service';
 
 const BASE_URL = process.env.BASE_URL!;
 const PROJECT_ID = process.env.PROJECT_ID!;
@@ -34,7 +39,8 @@ export const TestCaseService = {
     status: string,
     duration: number,
     steps: Step[] = [],
-    stdout: StdoutLog[]
+    stdout: StdoutLog[],
+    screenshots: ScreenshotMeta[] = []
   ): TestCasePayload {
     return {
       name,
@@ -43,6 +49,7 @@ export const TestCaseService = {
       duration,
       steps,
       stdout,
+      screenshots,
     };
   },
 
@@ -53,6 +60,7 @@ export const TestCaseService = {
     duration: number,
     steps: Step[] = [],
     stdout: StdoutLog[],
+    screenshots: ScreenshotMeta[] = [],
     error_message: string,
     error_stack_trace: string
   ): TestCasePayload {
@@ -63,6 +71,7 @@ export const TestCaseService = {
       duration,
       steps,
       stdout,
+      screenshots,
       error_message,
       error_stack_trace,
     };
