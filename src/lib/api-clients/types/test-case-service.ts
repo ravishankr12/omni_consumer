@@ -3,7 +3,6 @@ export interface StdoutLog {
   level: string;
   message: string;
 }
-
 export interface Step {
   name: string;
   status: string;
@@ -12,7 +11,10 @@ export interface Step {
   error_message?: string;
   stack_trace?: string;
 }
-
+export interface ScreenshotMeta {
+  name: string;
+  timestamp: string;
+}
 export interface TestCasePayload {
   name: string;
   module: string;
@@ -23,8 +25,4 @@ export interface TestCasePayload {
   screenshots?: ScreenshotMeta[];
   error_message?: string;
   error_stack_trace?: string;
-}
-export interface ScreenshotMeta {
-  name: string;
-  timestamp: string;
 }

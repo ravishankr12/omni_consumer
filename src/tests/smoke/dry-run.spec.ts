@@ -14,7 +14,7 @@ test.beforeAll(async () => {
 test.describe('Swag Labs - Dashboard Integration', () => {
   test.afterEach(async ({}, testInfo) => {
     const testStatus = testInfo.status === 'passed' ? 'passed' : 'failed';
-
+    
     const screenshotsMeta = [];
     const screenshotNames = ['error-step1.png', 'error-step2.png'];
     for (const name of screenshotNames) {
@@ -72,7 +72,7 @@ test.describe('Swag Labs - Dashboard Integration', () => {
 
     const response = await TestCaseService.createTestCase(buildID, payload);
     console.log(`Sent test case result for "${testInfo.title}":`, response);
-    
+
     // Folder where your screenshots are saved (relative to this spec file)
     const snapshotsFolder = path.resolve(__dirname, 'dry-run.spec.ts-snapshots');
     await TestCaseService.uploadScreenshotsAndUpdateDashboard(response[0], snapshotsFolder);
@@ -80,14 +80,26 @@ test.describe('Swag Labs - Dashboard Integration', () => {
 
   // Passing test
   for (let i = 1; i <= 1; i++) {
-    test(`Pass - Login [${i}]`, { tag: ['@smoke', '@authtication'] }, async ({ page }) => {
-      await page.goto('https://www.saucedemo.com/v1');
-      await page.fill('#user-name', 'standard_user');
-      await page.fill('#password', 'secret_sauce');
-      await expect(page).toHaveScreenshot({ fullPage: true });
-      await page.click('#login-button');
-      await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
-    });
+    test(
+      `Pass - Login [${i}]`,
+      {
+        tag: ['@smoke', '@authtication'],
+        annotation: [
+          {
+            type: 'issue',
+            description: 'https://github.com/microsoft/playwright/issues/23180',
+          },
+        ],
+      },
+      async ({ page }) => {
+        await page.goto('https://www.saucedemo.com/v1');
+        await page.fill('#user-name', 'standard_user');
+        await page.fill('#password', 'secret_sauce');
+        await expect(page).toHaveScreenshot({ fullPage: true });
+        await page.click('#login-button');
+        await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+      }
+    );
   }
 
   // Run failing login test n times
