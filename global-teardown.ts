@@ -1,14 +1,21 @@
-import fs from 'fs/promises';
-import { BuildService } from './src/lib/build-service';
+import fs from "fs/promises";
+import { configureOmniTest, OmniService } from "omni-test-intelligence";
 
 async function globalTeardown() {
-  // Read build ID from meta file
-  const data = await fs.readFile('build-meta.json', 'utf-8');
+  // Initialize config from environment variables
+  configureOmniTest({
+    baseUrl: process.env.BASE_URL!,
+    projectId: process.env.PROJECT_ID!,
+    apiKey: process.env.API_KEY!,
+  });
+
+  // Read build ID from file
+  const data = await fs.readFile("build-meta.json", "utf-8");
   const { buildId } = JSON.parse(data);
 
-  // Call reusable BuildService method
-  const complete = await BuildService.completeBuild(buildId, 'passed', 800, 'production');
-  console.log('Global Teardown: Build completed:', complete);
+  // Complete build
+  const complete = await OmniService.completeBuild(buildId, "passed", 800, "production");
+  console.log("Global Teardown: Build completed:", complete);
 }
 
 export default globalTeardown;

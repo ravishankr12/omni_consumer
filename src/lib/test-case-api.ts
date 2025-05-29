@@ -18,6 +18,22 @@ const headers = {
   Accept: 'application/json',
 };
 
+interface CreateTestCaseOptions {
+  testInfo: {
+    title: string;
+    duration?: number;
+    status: 'passed' | 'failed' | 'skipped';
+    tags?: string[];
+    error?: {
+      message?: string;
+      stack?: string;
+    };
+  };
+  steps?: Step[];
+  stdout?: StdoutLog[];
+  screenshots?: ScreenshotMeta[];
+}
+
 export const TestCaseService = {
   async createTestCase(buildId: string, testCasePayload: TestCasePayload): Promise<any> {
     const url = `${BASE_URL}/projects/${PROJECT_ID}/test-cases`;
@@ -63,65 +79,35 @@ export const TestCaseService = {
     );
   },
 
-  createPassedTestCasePayload(
-    name: string,
-    module: any,
-    status: string,
-    duration: number,
-    steps: Step[] = [],
-    stdout: StdoutLog[],
-    screenshots: ScreenshotMeta[] = []
-  ): TestCasePayload {
-    return {
-      name,
-      module,
-      status,
-      duration,
-      steps,
-      stdout,
-      screenshots,
-    };
-  },
+  createTestCasePayload({
+    testInfo,
+    steps = [],
+    stdout = [],
+    screenshots = [],
+  }: CreateTestCaseOptions): TestCasePayload {
+    const testStatus = testInfo.status === 'passed' ? 'passed' : 'failed';
 
-  createFailedTestCasePayload(
-    name: string,
-    module: any,
-    status: string,
-    duration: number,
-    steps: Step[] = [],
-    stdout: StdoutLog[],
-    screenshots: ScreenshotMeta[] = [],
-    error_message: string,
-    error_stack_trace: string
-  ): TestCasePayload {
-    return {
-      name,
-      module,
-      status,
-      duration,
-      steps,
-      stdout,
-      screenshots,
-      error_message,
-      error_stack_trace,
-    };
-  },
+    const tags: string[] = testInfo.tags || [];
+    const cleanedTags: string = tags.map((tag) => tag.replace(/^@/, '')).join(', ');
 
-  createTestCaseWithStepsPayload(
-    name: string,
-    module: string,
-    status: string,
-    duration: number,
-    steps: Step[],
-    stdout: StdoutLog[]
-  ): TestCasePayload {
+    const generatedLog: StdoutLog = {
+      timestamp: new Date().toISOString(),
+      level: testStatus === 'passed' ? 'INFO' : 'ERROR',
+      message: `${testInfo.title} ${testStatus}`,
+    };
+
     return {
-      name,
-      module,
-      status,
-      duration,
+      name: testInfo.title,
+      module: cleanedTags,
+      status: testStatus,
+      duration: testInfo.duration || 0,
       steps,
-      stdout,
+      stdout: [generatedLog, ...stdout],
+      screenshots,
+      ...(testStatus === 'failed' && {
+        error_message: testInfo.error?.message || '',
+        error_stack_trace: testInfo.error?.stack || '',
+      }),
     };
   },
 };

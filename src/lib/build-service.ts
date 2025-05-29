@@ -1,7 +1,6 @@
 import axios from 'axios';
 import {
   Build,
-  GetBuildsResponse,
   StartBuildResponse,
   CompleteBuildResponse,
 } from './api-clients/types/build-response';
@@ -17,11 +16,7 @@ const headers = {
 };
 
 export const BuildService = {
-  async getBuilds(days = 7, environment = 'production'): Promise<GetBuildsResponse> {
-    const url = `${BASE_URL}/projects/${PROJECT_ID}/builds?days=${days}&environment=${environment}`;
-    const response = await axios.get<GetBuildsResponse>(url, { headers });
-    return response.data;
-  },
+
 
   async startBuild(environment = 'production'): Promise<Build> {
     const url = `${BASE_URL}/projects/${PROJECT_ID}/builds?days=7&environment=${environment}`;

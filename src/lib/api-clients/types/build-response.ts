@@ -6,11 +6,6 @@ export interface Build {
   duration: number;
   [key: string]: any;
 }
-
-export interface GetBuildsResponse {
-  builds: Build[];
-}
-
 export interface StartBuildResponse {
   build: Build;
 }

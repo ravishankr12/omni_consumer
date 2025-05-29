@@ -30,6 +30,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.803.0",
     "axios": "^1.9.0",
+    "omni-test-intelligence": "^1.0.9",
     "proxymise": "^1.0.2"
   }
 }
