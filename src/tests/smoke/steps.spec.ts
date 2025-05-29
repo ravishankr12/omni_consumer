@@ -193,3 +193,117 @@
 // main().catch(err => {
 //   console.error('Error:', err);
 // });
+
+
+// --------------
+
+
+// import { test, expect } from '@playwright/test';
+// import fs from 'fs/promises';
+// import path from 'path';
+// import { configureOmniTest, OmniService } from 'omni-test-intelligence';
+
+// configureOmniTest({
+//   baseUrl: process.env.BASE_URL!,
+//   projectId: process.env.PROJECT_ID!,
+//   apiKey: process.env.API_KEY!,
+// });
+
+// let buildID: string;
+
+// // 📦 Load build ID before all tests
+// test.beforeAll(async () => {
+//   const data = await fs.readFile('build-meta.json', 'utf-8');
+//   buildID = JSON.parse(data).buildId;
+// });
+
+// // 📁 Main suite
+// test.describe('Swag Labs - Dashboard Integration', () => {
+//   //Dashboard sync after each test
+//   test.afterEach(async ({}, testInfo) => {
+//     try {
+//       console.log(buildID);
+
+//       // 🖼️ Static screenshots (you can make this dynamic per test in future)
+//       const screenshotsMeta = ['error-step1.png', 'error-step2.png'].map((name) => ({
+//         name,
+//         timestamp: new Date().toISOString(),
+//       }));
+
+//       // ✅ Grab browser logs from testInfo (attached in the test)
+//       const browserLogs = (testInfo as any).browserLogs || [];
+//       console.log(browserLogs);
+
+//       // 📤 Create payload
+//       const payload = OmniService.createTestCasePayload({
+//         testInfo,
+//         stdout: [],
+//         screenshots: screenshotsMeta,
+//         steps: [], // You can populate steps later if needed
+//       });
+
+//       console.log('📦 Test Case Payload:', payload);
+
+//       const snapshotPath = path.resolve(__dirname, 'dry-run.spec.ts-snapshots');
+//       const singleResponse = await OmniService.createTestCaseWithScreenshots(
+//         buildID,
+//         payload,
+//         snapshotPath
+//       );
+//       console.log(singleResponse);
+//     } catch (err) {
+//       console.error(`❌ Failed to report test "${testInfo.title}":`, err);
+//     }
+//   });
+
+//   // ✅ Passing Test
+//   test(
+//     'Pass - Login [1]',
+//     {
+//       tag: ['@smoke', '@authentication', '@P1'],
+//       annotation: [
+//         {
+//           type: 'issue',
+//           description: 'https://github.com/microsoft/playwright/issues/23180',
+//         },
+//       ],
+//     },
+//     async ({ page }) => {
+//       await page.goto('https://www.saucedemo.com/v1');
+//       await page.fill('#user-name', 'standard_user');
+//       await page.fill('#password', 'secret_sauce');
+//       await expect(page).toHaveScreenshot({ fullPage: true });
+//       await page.click('#login-button');
+//       await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+//     }
+//   );
+
+//   // ❌ Failing Test
+//   test(
+//     'Fail - Login [1]',
+//     {
+//       tag: ['@sanity', '@authentication', '@P0'],
+//     },
+//     async ({ page }, testInfo) => {
+//       const browserLogs: { type: string; message: string; timestamp: string }[] = [];
+
+//       // 👇 Attach browser console log listener
+//       page.on('console', (msg) => {
+//         browserLogs.push({
+//           type: msg.type(),
+//           message: msg.text(),
+//           timestamp: new Date().toISOString(),
+//         });
+//       });
+
+//       await page.goto('https://www.saucedemo.com/v1');
+//       await page.fill('#user-name', 'standard_user');
+//       await page.fill('#password', 'fail');
+//       await page.click('#login-button');
+//       await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+
+//       // 🧷 Attach logs to testInfo for later use
+//       (testInfo as any).browserLogs = browserLogs;
+//     }
+//   );
+// });
