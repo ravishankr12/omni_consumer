@@ -4,7 +4,6 @@ import { configureOmniTest, OmniService } from "omni-test-intelligence";
 async function globalTeardown() {
   // Initialize config from environment variables
   configureOmniTest({
-    baseUrl: process.env.BASE_URL!,
     projectId: process.env.PROJECT_ID!,
     apiKey: process.env.API_KEY!,
   });

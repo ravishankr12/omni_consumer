@@ -1,115 +1,44 @@
 import { test, expect } from '@playwright/test';
-import fs from 'fs/promises';
-import { TestCaseService } from '../../lib/test-case-api';
 import path from 'path';
+import { configureOmniTest, setupOmniAfterEach } from 'omni-test-intelligence';
 
-let buildID: string;
-
-// Load buildId from file before tests
-test.beforeAll(async () => {
-  const data = await fs.readFile('build-meta.json', 'utf-8');
-  buildID = JSON.parse(data).buildId;
+configureOmniTest({
+  projectId: process.env.PROJECT_ID!,
+  apiKey: process.env.API_KEY!,
 });
+console.log(process.env.BUILD_ID);
 
+setupOmniAfterEach({
+  buildId: process.env.BUILD_ID!,
+  snapshotPath: path.resolve(__dirname, 'dry-run.spec.ts-snapshots'),
+  screenshotNames: ['error-step1.png', 'error-step2.png'],
+  stdoutLogs: [],
+  steps: [],
+});
+test.afterEach(async ({}, testInfo) => {
+  console.log(`Second afterEach hook: ${testInfo.title}`);
+});
+// Main suite
 test.describe('Swag Labs - Dashboard Integration', () => {
-  test.afterEach(async ({}, testInfo) => {
-    const testStatus = testInfo.status === 'passed' ? 'passed' : 'failed';
-    
-    const screenshotsMeta = [];
-    const screenshotNames = ['error-step1.png', 'error-step2.png'];
-    for (const name of screenshotNames) {
-      screenshotsMeta.push({
-        name,
-        timestamp: new Date().toISOString(),
-      });
-    }
-
-    const stdoutLogs = [
-      {
-        timestamp: new Date().toISOString(),
-        level: testStatus === 'passed' ? 'INFO' : 'ERROR',
-        message: `${testInfo.title} ${testStatus}`,
-      },
-    ];
-
-    const tags: string[] = testInfo.tags || [];
-    const cleanedTags: string = tags.map((tag) => tag.replace(/^@/, '')).join(', ');
-
-    const basePayload = {
-      name: testInfo.title,
-      module: cleanedTags,
-      status: testStatus,
-      duration: testInfo.duration || 0,
-      steps: [],
-      stdout: stdoutLogs,
-      screenshots: screenshotsMeta.length > 0 ? screenshotsMeta : [],
-    };
-
-    let payload;
-    if (testStatus === 'passed') {
-      payload = TestCaseService.createPassedTestCasePayload(
-        basePayload.name,
-        basePayload.module,
-        basePayload.status,
-        basePayload.duration,
-        basePayload.steps,
-        basePayload.stdout,
-        basePayload.screenshots
-      );
-    } else {
-      payload = TestCaseService.createFailedTestCasePayload(
-        basePayload.name,
-        basePayload.module,
-        basePayload.status,
-        basePayload.duration,
-        basePayload.steps,
-        basePayload.stdout,
-        basePayload.screenshots,
-        testInfo.error?.message || 'Unknown error',
-        testInfo.error?.stack || ''
-      );
-    }
-
-    const response = await TestCaseService.createTestCase(buildID, payload);
-    console.log(`Sent test case result for "${testInfo.title}":`, response);
-
-    // Folder where your screenshots are saved (relative to this spec file)
-    const snapshotsFolder = path.resolve(__dirname, 'dry-run.spec.ts-snapshots');
-    await TestCaseService.uploadScreenshotsAndUpdateDashboard(response[0], snapshotsFolder);
-  });
-
-  // Passing test
-  for (let i = 1; i <= 1; i++) {
-    test(
-      `Pass - Login [${i}]`,
-      {
-        tag: ['@smoke', '@authtication'],
-        annotation: [
-          {
-            type: 'issue',
-            description: 'https://github.com/microsoft/playwright/issues/23180',
-          },
-        ],
-      },
-      async ({ page }) => {
-        await page.goto('https://www.saucedemo.com/v1');
-        await page.fill('#user-name', 'standard_user');
-        await page.fill('#password', 'secret_sauce');
-        await expect(page).toHaveScreenshot({ fullPage: true });
-        await page.click('#login-button');
-        await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
-      }
-    );
-  }
-
-  // Run failing login test n times
-  for (let i = 1; i <= 1; i++) {
-    test(`Fail - Login [${i}]`, { tag: ['@sanity', '@authtication'] }, async ({ page }) => {
+  // Passing Test
+  test(
+    'Pass - Login [1]',
+    {
+      tag: ['@smoke', '@authentication', '@P1'],
+      annotation: [
+        {
+          type: 'issue',
+          description: 'https://github.com/microsoft/playwright/issues/23180',
+        },
+      ],
+    },
+    async ({ page }) => {
       await page.goto('https://www.saucedemo.com/v1');
       await page.fill('#user-name', 'standard_user');
-      await page.fill('#password', 'fail');
+      await page.fill('#password', 'secret_sauce');
+      await expect(page).toHaveScreenshot({ fullPage: true });
       await page.click('#login-button');
-      await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html'); // will fail
-    });
-  }
+      await expect(page).toHaveURL('https://www.saucedemo.com/v1/inventory.html');
+    }
+  );
 });
